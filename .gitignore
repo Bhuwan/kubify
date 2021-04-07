@@ -3,7 +3,9 @@
 # terraform
 *.tgz
 .terraform/
+**/.terraform
 terraform.state.d/
+**/terraform.state.d
 *.backup
 terraform.tfstate
 remote_backend.tf
@@ -13,3 +15,5 @@ remote_backend.tf
 *.rdb
 **/__pycache__
 tests/*.tif
+.pytest_cache/
+**/.pytest_cache
