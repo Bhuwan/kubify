@@ -2,7 +2,7 @@
 {% set probe_readiness = kubify_config | json_query('probes.readiness') | default(dict(), true) %}
 {% set resources = kubify_config | json_query("profiles." + profile + ".resources") | default(dict(), true) %}
 {% set scaler_spec = kubify_config | json_query("profiles." + profile + ".scaler") | default(dict(), true) %}
-{% set scaler_base = {"scaleTargetRef": {"apiVersion": "extensions/v1beta1", "kind": "Deployment", "name": app_name}} %}
+{% set scaler_base = {"scaleTargetRef": {"apiVersion": "networking.k8s.io/v1", "kind": "Deployment", "name": app_name}} %}
 
 {% if scaler_spec|length %}
 ---

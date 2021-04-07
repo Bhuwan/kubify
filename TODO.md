@@ -16,4 +16,5 @@
 - convertor from ecs, heroku, ..
 - Versioning to one file paramerized everywhere else. 
 - Code listening on remote cluster
+- https://kubernetes.io/blog/2021/03/09/the-evolution-of-kubernetes-dashboard/
 - Kubeproxy with Hybrid Development rapid testing (develop a service locally and it to be part of a remote k8s cluster)

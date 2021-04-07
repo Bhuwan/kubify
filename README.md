@@ -48,12 +48,12 @@ export EDITOR="subl -w"
 cd backend/be-svc
 kubify secrets create dev
 ```
-# How to contribute
+# How to contribute to the OS repo
 
+https://github.com/willyguggenheim/kubify is the official OS repo (combination of the 2015 and 2017 versions of Willy's OS kubify_com repo and refactored in 2021 to the offical OS repo, so this is the main official repo to contribute to)
 If you find any bugs, have built and added any cool new features please open a PR.
 If you are new to open source, this link helps get you started with your first PR to an OS repo.
-
-https://github.com/firstcontributions/first-contributions
+For more information on the contribution PR review flow: https://github.com/firstcontributions/first-contributions
 
 # Why
 
