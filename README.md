@@ -48,6 +48,12 @@ export EDITOR="subl -w"
 cd backend/be-svc
 kubify secrets create dev
 ```
+# How to contribute
+
+If you find any bugs, have built and added any cool new features please open a PR.
+If you are new to open source, this link helps get you started with your first PR to an OS repo.
+
+https://github.com/firstcontributions/first-contributions
 
 # Why
 
