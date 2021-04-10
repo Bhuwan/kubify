@@ -1,6 +1,4 @@
-💻💻💻💻💻💻💻💻💻💻
-
-
+💻
 
 # Description
 
@@ -281,10 +279,14 @@ Save huge on cloud costs. Run it all on your workstation. Run multiple environme
 
 `print laymans terms | summary`: This makes your DevOps, Security Teams and especially your devs multiple times as happy.
 
+Still need motivation (THAT IS EASY TO FIX): https://www.youtube.com/watch?v=7m0n8h8b89M
+
+#STAYINSPIRATIONAL
+
 #FREESOFTWARE
 
+#DEVEX
 
 ![FUTUREOFDEVOPS9000](./docs/img/README_md_imgs/the-future.gif)
 
-
-💻💻💻💻💻💻💻💻💻💻
+💻
