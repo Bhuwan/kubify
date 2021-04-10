@@ -2,7 +2,7 @@ version: 3
 projects:
 - name: 
   dir: infra/*/*/*
-  terraform_version: v0.14.7
+  terraform_version: v0.14.10
   autoplan:
     when_modified: ["*.tf"]
     enabled: true

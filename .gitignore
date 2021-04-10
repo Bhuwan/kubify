@@ -17,3 +17,8 @@ remote_backend.tf
 tests/*.tif
 .pytest_cache/
 **/.pytest_cache
+
+
+#binaries forsure
+tools/kubify/atlantis/bootstrap/terraform
+tools/kubify/atlantis/atlantis-terragrunt-image/terragrunt

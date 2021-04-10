@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 REPO=kubifyinc/atlantis-terragrunt
 ATLANTIS_VERSION=0.8.3
 TERRAGRUNT_VERSION=0.19.21
-TERRAFORM_VERSION=0.14.7
+TERRAFORM_VERSION=0.14.10
 IMAGE_REVISION=8
 
 docker build \

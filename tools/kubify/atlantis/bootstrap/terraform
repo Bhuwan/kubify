@@ -4,7 +4,7 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-TERRAFORM_VERSION=${TERRAFORM_VERSION:-0.14.7}
+TERRAFORM_VERSION=${TERRAFORM_VERSION:-0.14.10}
 TOOLS_DIR=${DIR}/.tools
 TERRAFORM=${TOOLS_DIR}/terraform
 

@@ -23,7 +23,7 @@ RUN curl -sL \
 # Terraform plugin cache set by env variable in task definition
 RUN mkdir -p /root/.terraform.d/plugin-cache/
 
-# also installing terraform 0.14.7 until atlantis supports multiple versions
+# also installing terraform 0.14.10 until atlantis supports multiple versions
 RUN curl -sL \
   -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
   && \

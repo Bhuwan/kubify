@@ -42,7 +42,7 @@ KUBIFY_CI = ""
 KUBIFY_VERBOSE = ""
 KUBIFY_DEBUG = ""
 KUBIFY_ENTRYPOINT_IMAGE = ""
-KUBIFY_REGISTRY = ""
+KUBIFY_CONTAINER_REGISTRY = ""
 KUBIFY_LOCAL_DOMAIN_SUFFIX = ""
 KUBIFY_LOCAL_DOMAIN = ""
 KUBIFY_UPSTREAM_DOMAIN_SUFFIX = ""
@@ -1929,7 +1929,7 @@ def main(*argv):
     global KUBIFY_VERBOSE
     global KUBIFY_DEBUG
     global KUBIFY_ENTRYPOINT_IMAGE
-    global KUBIFY_REGISTRY
+    global KUBIFY_CONTAINER_REGISTRY
     global KUBIFY_LOCAL_DOMAIN_SUFFIX
     global KUBIFY_LOCAL_DOMAIN
     global KUBIFY_UPSTREAM_DOMAIN_SUFFIX
@@ -2017,7 +2017,7 @@ def main(*argv):
         KUBIFY_VERBOSE= env_var_or_default('KUBIFY_VERBOSE', '1')      # Sets the verbose logging to true (if set to 1)
         KUBIFY_DEBUG = env_var_or_default('KUBIFY_DEBUG', '0')        # Sets the debug logging to true (if set to 1)
         KUBIFY_ENTRYPOINT_IMAGE = 'kubify/entrypoint'         # The entrypoint image for ad-hoc commands
-        KUBIFY_REGISTRY = ''        # Leave blank for DockerHub
+        KUBIFY_CONTAINER_REGISTRY = ''        # Leave blank for DockerHub
         KUBIFY_LOCAL_DOMAIN_SUFFIX = 'kubify.local' # Local domain suffix 
         KUBIFY_LOCAL_DOMAIN = 'local.' + KUBIFY_LOCAL_DOMAIN_SUFFIX  # The local domain (for development)
         KUBIFY_UPSTREAM_DOMAIN_SUFFIX = 'kubify.ai'  # The domain suffix for upstream environments (Example: <env>.kubify.local)

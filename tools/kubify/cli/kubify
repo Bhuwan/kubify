@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export AWS_REGION=us-west-2
-export AWS_PROFILE=default
+export AWS_REGION=${KUBIFY_AWS_REGION:-us-east-1}
+export AWS_PROFILE=${KUBIFY_AWS_PROFILE:-default}
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SRC_DIR=`echo "$(cd "$(dirname "$DIR/../../../..")"; pwd)"`
@@ -21,12 +21,18 @@ KUBIFY_CI=${KUBIFY_CI:-0}                     # This is set to 1 in a Continuous
 KUBIFY_VERBOSE=${KUBIFY_VERBOSE:-1}           # Sets the verbose logging to true (if set to 1)
 KUBIFY_DEBUG=${KUBIFY_DEBUG:-0}               # Sets the debug logging to true (if set to 1)
 KUBIFY_ENTRYPOINT_IMAGE=kubify/entrypoint   # The entrypoint image for ad-hoc commands
-KUBIFY_REGISTRY=""                          # Leave blank for DockerHub
+KUBIFY_CONTAINER_REGISTRY=${KUBIFY_CONTAINER_REGISTRY:-dockerhub} #to use AWS ECR instead, set environment variable  KUBIFY_CONTAINER_REGISTRY=ECR
 KUBIFY_LOCAL_DOMAIN_SUFFIX="kubify.local"                # Local domain suffix
 KUBIFY_LOCAL_DOMAIN="local.${KUBIFY_LOCAL_DOMAIN_SUFFIX}"  # The local domain (for development)
 KUBIFY_UPSTREAM_DOMAIN_SUFFIX="kubify.ai" # The domain suffix for upstream environments (Example: <env>.kubify.local)
 KUBIFY_UPSTREAM_ENV_ACCOUNT="arn:aws:eks:${AWS_REGION}:${AWS_ACCOUNT_NUMBER}"
 KUBIFY_NPM_CREDENTIALS_SECRET="npm-credentials"
+
+# Dynamic Defaults
+aws sts get-caller-identity || aws configure # login aws if not already logged in
+AWS_ACCOUNT_ID=`aws sts get-caller-identity --query Account --output text`
+AWS_ACCESS_KEY_ID=`aws configure get default.aws_access_key_id`
+AWS_SECRET_ACCESS_KEY=`aws configure get default.aws_secret_access_key`
 
 # CI Parameters
 PUBLISH_IMAGE_REPO_PREFIX="kubifyinc"
@@ -184,7 +190,7 @@ function version {
 
 function check {
   echo "Docker: $(which docker): $(docker --version)"
-  echo "Kubernetes CLI: $(which kubectl): $(kubectl version --client --short)"
+  echo "Kubernetes CLI: $(which $KUBECTL): $($KUBECTL version --client --short)"
   if [[ "$KUBIFY_ENGINE" == "minikube" ]]; then
     echo "Minikube: $(which minikube): $(minikube version)"
   fi
@@ -322,7 +328,7 @@ function update_registry_secret() {
 
     fi
 
-    SECRET=$(kubectl create secret docker-registry $REG_SECRET \
+    SECRET=$($KUBECTL create secret docker-registry $REG_SECRET \
     --docker-email=$docker_email \
     --docker-username=$docker_username \
     --docker-password=$docker_password \
@@ -409,6 +415,13 @@ function _generate_local_cluster_cert {
   docker run -e COMMON_NAME="*.${KUBIFY_LOCAL_DOMAIN}" -v ${K8S_DIR}/k8s/certs:/certs -w /certs -it alpine:latest sh -c ./gen-certs.sh
 }
 
+function debug {
+  echo "!!ALL THE kube-system NAMESPACE OBJECTS:"
+  $KUBECTL api-resources --verbs=list --namespaced -o name | xargs -n 1 $KUBECTL get --show-kind --ignore-not-found -n kube-system
+  echo "!!ALL THE kubify NAMESPACE OBJECTS:"
+  $KUBECTL api-resources --verbs=list --namespaced -o name | xargs -n 1 $KUBECTL get --show-kind --ignore-not-found -n kubify
+}
+
 function configure_cluster {
   MANIFESTS=${K8S_DIR}/k8s
   TILLERLESS=${TILLERLESS:-0}
@@ -446,10 +459,37 @@ function configure_cluster {
     $HELM repo update
 
     # Install kubedb for managing databases
-    KUBEDB_VERSION=v2021.03.17
+    # is broken locally:
+    #KUBEDB_VERSION=v2021.03.17
+    # so we will use the last version before that (they used to use a version naming convention that didn't match the version name):
+    # also we had to do a find/replace from kubedb-operator to kubedb-community (previous helm chart name, before the march breaking changes of kubedb)
+    KUBEDB_VERSION=v0.16.2
 
-    $HELM ${TILLER} upgrade kubedb-operator appscode/kubedb --install --version $KUBEDB_VERSION --namespace kube-system
-    $KUBECTL rollout status -w deployment/kubedb-operator -n kube-system
+    # workaround, since --install was not ignoring errors (and \
+    # the KubeDB public repo latest release version is using the depreciated api resulting in error: 
+    # `W0408 13:59:35.514944    2349 warnings.go:70] apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated \
+    #  in v1.16+, unavailable in v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition` )
+    if `$KUBECTL --namespace kube-system get pods | grep kubedb` ; then
+        echo "KubeDB is already installed, so running upgrade command instead.."
+        echo "TODO: remove the '|| true' workaround once they release a stable KubeDB version release (since they already fixed in master looks like)"
+        $HELM ${TILLER} upgrade kubedb-community appscode/kubedb --install --version $KUBEDB_VERSION --namespace kube-system || true
+    else
+        echo "Installing KubeDB.."
+        # #TODO: look into why the uninstaller for the recent release of kubedb is borked, but for now another workaround
+        # $KUBECTL delete psp elasticsearch-db || true
+        # $KUBECTL delete psp maria-db || true
+        # memcached-db
+        # mongodb-db
+        # mysql-db
+        # percona-xtradb-db
+        # postgres-db
+        # proxysql-db
+        # redis-db
+        echo "TODO: remove the '|| true' workaround once they release a stable KubeDB version release (since they already fixed in master looks like)"
+        $HELM ${TILLER} install kubedb-community appscode/kubedb --version $KUBEDB_VERSION --namespace kube-system || true
+    fi
+    
+    $KUBECTL rollout status -w deployment/kubedb-community -n kube-system
     $HELM ${TILLER} upgrade kubedb-catalog appscode/kubedb-catalog --install --version $KUBEDB_VERSION --namespace kube-system
 
     # Install nginx-ingress (except on minikube)
@@ -470,14 +510,19 @@ function configure_cluster {
       -o yaml`
     echo "$CA_SECRET" | ${KUBECTL_NS} apply -f -
 
-    CERT_MANAGER_VERSION="1.1.1"
+    # 4/9/2021: this 1.3.0 version is a 2 day old release (but certmanager should be updated regularly), but it looks to fix the some of the recent certmanager issues nicely, according to my latest rapid testing \
+    #  efforts (refactor was necessary along with it) https://github.com/jetstack/cert-manager/releases
+    CERT_MANAGER_VERSION="v1.3.0"
     # CERT_MANAGER_CRD_VERSION="0.8" # Both these need to have the same minor version !!! IMPORTANT !!!
     #$KUBECTL apply -f https://raw.githubusercontent.com/jetstack/cert-manager/release-${CERT_MANAGER_CRD_VERSION}/deploy/manifests/00-crds.yaml
     $KUBECTL create ns cert-manager || echo 'cert-manager ns exists'
+    # set installCRDs=true is important after v0.10.0+
+    # https://www.thinktecture.com/en/kubernetes/ssl-certificates-with-cert-manager-in-kubernetes/
     $HELM ${TILLER} upgrade cert-manager jetstack/cert-manager \
       --install \
-      --version v${CERT_MANAGER_VERSION} \
+      --version ${CERT_MANAGER_VERSION} \
       --namespace cert-manager \
+      --set installCRDs=true \
       --wait
 
     # Install reloader which watches configmaps and secrets and determines when to reload pods etc.
@@ -513,24 +558,27 @@ EOF
     $KUBECTL_NS apply -f $MANIFESTS/kubify.yaml
   } &> $KUBIFY_OUT
 
-  echo "Applying manifests"
   {
     if [[ -z "$UPSTREAM" ]] || [[ "$UPSTREAM" == "0" ]]; then
+      echo "Applying local cert-manager automation manifests"
       cat <<EOF | ${KUBECTL_NS} apply -f -
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: ca-issuer
+  namespace: kubify
 spec:
   ca:
     secretName: ca-key-pair
 EOF
     else
+      echo "Applying cluster cert-manager automation manifests"
       cat <<EOF | ${KUBECTL} apply -f -
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
+  namespace: kubify
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
@@ -541,6 +589,31 @@ spec:
 EOF
     fi
   } &> $KUBIFY_OUT
+}
+
+#TODO only run if local not in cloud
+function install_aws_ecr_helper {
+  # This Chart seemlessly integrates Kubernetes with AWS ECR (auth for registry in AWS ECR) https://artifacthub.io/packages/helm/architectminds/aws-ecr-credential
+  $HELM repo add architectminds https://architectminds.github.io/helm-charts/
+
+  # TODO (high priority security topic): should this namespace be different than the services?
+  $HELM install aws-ecr-credential architectminds/aws-ecr-credential --version 1.4.2 \
+    --set-string aws.account=$AWS_ACCOUNT_ID \
+    --set aws.region=$AWS_REGION \
+    --set aws.accessKeyId=$AWS_ACCESS_KEY_ID \
+    --set aws.secretAccessKey=$AWS_SECRET_ACCESS_KEY \
+    --set targetNamespace=kubify || \
+  $HELM upgrade --install aws-ecr-credential architectminds/aws-ecr-credential --version 1.4.2 \
+    --set-string aws.account=$AWS_ACCOUNT_ID \
+    --set aws.region=$AWS_REGION \
+    --set aws.accessKeyId=$AWS_ACCESS_KEY_ID \
+    --set aws.secretAccessKey=$AWS_SECRET_ACCESS_KEY \
+    --set targetNamespace=kubify || true
+
+  # $HELM upgrade --install my-aws-ecr-credential architectminds/aws-ecr-credential --version 1.4.2 --set-string aws.account=$AWS_ACCOUNT_ID \
+  #                                                                                               --set aws.accessKeyId=$AWS_ACCESS_KEY_ID \
+  #                                                                                               --set aws.secretAccessKey=$AWS_SECRET_ACCESS_KEY \
+  #                                                                                               --set targetNamespace=kubify
 }
 
 function configure {
@@ -561,7 +634,11 @@ function configure {
     done
   } &> $KUBIFY_OUT
 
-  update_registry_secret
+  if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
+    update_registry_secret
+  else
+    install_aws_ecr_helper
+  fi
 
   # Set DNS
   echo "Configuring DNS and Trusted Certificates. SUDO password might be needed..."
@@ -614,7 +691,7 @@ function configure {
     check
   } &> $KUBIFY_OUT
 
-  until kubectl get pods --all-namespaces -l app=kubedb | grep Running; do
+  until $KUBECTL get pods --all-namespaces -l app.kubernetes.io/name=kubedb | grep Running; do
     echo "Waiting for kubedb to download dependencies...."
     sleep 5
   done
@@ -775,13 +852,13 @@ function display_running {
 }
 
 function delete {
-  if ask "Do you really want to delete your local cluster? Only ephemeral data/files will be gone."; then
+  if ask "Do you really want to delete your local cluster?"; then
     if [[ "$KUBIFY_ENGINE" == "minikube" ]]; then
       $MINIKUBE delete --profile $PROFILE &> $KUBIFY_OUT
     elif [[ "$KUBIFY_ENGINE" == "local" ]]; then
       echo "Deleting kubify namespace ${NAMESPACE}"
       #if namespace takes longer than 30 seconds to delete (provider hanging), then re-install kubernetes
-      timeout 30 ${KUBECTL} delete ns ${NAMESPACE} || osascript -e 'quit app "Docker"' && rm -f "~/Library/Group Containers/group.com.docker/pki" && open --background -a Docker && while ! /usr/local/bin/kubectl get namespaces 2>&1;   do     echo "Waiting for Kubernetes for Docker Desktop to Install and Configure" && sleep 2;   done &> $KUBIFY_OUT
+      timeout 30 ${KUBECTL} delete ns ${NAMESPACE} || osascript -e 'quit app "Docker"' && rm -f "~/Library/Group Containers/group.com.docker/pki" && open --background -a Docker && while ! $KUBECTL get namespaces 2>&1;   do     echo "Waiting for Kubernetes for Docker Desktop to Install and Configure" && sleep 2;   done &> $KUBIFY_OUT
     fi
   fi
 }
@@ -1259,14 +1336,16 @@ function run_in_entrypoint {
 }
 
 function __setup_symlinks {
-  ln -sf /data/home/.aws $HOME/
-  ln -sf /data/home/.ssh $HOME/
-  ln -sf /data/home/.gitconfig $HOME/
+  ln -sf /data/home/.aws /root/
+  ln -sf /data/home/.ssh /root/
+  ln -sf /data/home/.gitconfig /root/
 }
 
 function setup_symlinks {
   echo "Setting up symlinks in entrypoint container" &> $KUBIFY_OUT
-  run_in_entrypoint kubify __setup_symlinks
+  # workaroud for race condition during ECR compatibility feature development (will clean this redundant code up later)
+  run_in_entrypoint 'ln -sf /data/home/.aws /root/ && ln -sf /data/home/.ssh /root/ && ln -sf /data/home/.gitconfig /root/'
+  run_in_entrypoint kubify __setup_symlinks || true
 }
 
 function wait_for_deployment {
@@ -1455,7 +1534,7 @@ function export_secret {
   ENV=${1}
   APP_DIR=${2}
   APP_NAME=`basename $APP_DIR`
-  SECRET_NAME=${ENV}_${APP_NAME}
+  SECRET_NAME=kubify_rocks_${ENV}_${APP_NAME}
   SECRETS_FILE=${APP_DIR}/secrets/secrets.${ENV}.enc.yaml
 
   SECRETS=`kubesec decrypt ${SECRETS_FILE} --cleartext`
@@ -1484,8 +1563,20 @@ function _get_secret {
   APP_NAME=${2}
   ENCRYPT=${3}
 
-  SECRET_NAME=${ENV}_${APP_NAME}
+  SECRET_NAME=kubify_rocks_${ENV}_${APP_NAME}
+  # create initial secret if not exist
+  # aws secretsmanager delete-secret --region $AWS_REGION --secret-id kubify_rocks_${ENV}_${APP_NAME}
+  # or for without backup (fast deletion of secretsmanager secret on a NON-PROD cluster for rapid development of this file, but be careful): aws secretsmanager delete-secret --region $AWS_REGION --secret-id kubify_rocks_${ENV}_${APP_NAME} --force-delete-without-recovery
+  # random secret string used for decryption salt in the deployed local or deployed kubernetes env
+  aws secretsmanager create-secret --region $AWS_REGION --name kubify_rocks_${ENV}_${APP_NAME} \
+    --description "kubify_rocks_${ENV}_${APP_NAME}" \
+    --secret-string {'"'"SecretString"'"':$(shuf -i 1-10000000000000000000 -n 1 )} || true  #NOTE: but you might have to wait for secretsmanager secret scheduled deletion if you deleted the secret recently https://www.youtube.com/watch?v=hxvJQcFRksM
+  # jq map_values doc https://stedolan.github.io/jq/manual/
   SECRET_DATA=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME | jq -r .SecretString | jq -r 'map_values(. | @base64)')
+  if [ -z "$SECRET_DATA" ]; then
+      echo "\SECRET_DATA came back empty, debug that first!"
+      exit 1
+  fi
   ENV_UPPER=`echo ${ENV} | awk '{ print toupper($0) }'`
   KEY_VAR="${ENV_UPPER}_KMS"
 
@@ -1615,7 +1706,7 @@ function environments {
           echo "Error: Environment ${ENV} does not exist!"
           exit 1
         fi
-        kubectl --context kubify-${ENV} get environments ${ENV} -o yaml | yq .
+        $KUBECTL --context kubify-${ENV} get environments ${ENV} -o yaml | yq .
         ;;
       status)
         check_arg $ENV "No Environment (dev/test/stage/prod) specified!"
@@ -1653,8 +1744,8 @@ function environments {
 
         CLUSTER=$(cat ${ENV_FILE} | yq -r .target.cluster)
         CONTEXT="${KUBIFY_UPSTREAM_ENV_ACCOUNT}:cluster/${CLUSTER}"
-        ENV_JSON=$(kubectl --context kubify-${ENV} get environments ${ENV} -o yaml | yq -r .)
-        TO_ENV_JSON=$(kubectl --context kubify-${TO_ENV} get environments ${TO_ENV} -o yaml | yq -r .)
+        ENV_JSON=$($KUBECTL --context kubify-${ENV} get environments ${ENV} -o yaml | yq -r .)
+        TO_ENV_JSON=$($KUBECTL --context kubify-${TO_ENV} get environments ${TO_ENV} -o yaml | yq -r .)
 
         SERVICES=$(echo $4 | sed 's/,/ /g')
 

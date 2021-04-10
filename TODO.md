@@ -18,3 +18,11 @@
 - Code listening on remote cluster
 - https://kubernetes.io/blog/2021/03/09/the-evolution-of-kubernetes-dashboard/
 - Kubeproxy with Hybrid Development rapid testing (develop a service locally and it to be part of a remote k8s cluster)
+- CICD should run e2e full integration test daily on each important branch with pagerduty notifications on broken anything
+- Add one of these to each cli function (or similar)
+```
+  if [ "$KUBIFY_DEBUG" != "0" ]; then
+    echo "DEBUG: RUNNING THIS CLI FUNCTION: "
+  fi
+```
+- Add a super cool progress bar for "kubify up" (when running outside of debug mode): https://laptrinhx.com/use-images-as-progress-bars-in-the-terminal-86135668/

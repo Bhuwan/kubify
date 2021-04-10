@@ -5,7 +5,7 @@
     local_bin: /usr/local/bin
     kubetail_url: https://raw.githubusercontent.com/johanhaleby/kubetail/master/kubetail
     kubesec_version: 0.9.2
-    skaffold_version: 1.20.0
+    skaffold_version: 1.21.0
     kubecfg_version: 0.17.0
     helm_version: 3.5.2
     helmfile_version: 0.138.4

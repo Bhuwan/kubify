@@ -1,9 +1,11 @@
 ---
 - hosts: all
   vars:
-    - TF_VERSION: 0.14.7
-    - AWS_CLI_VERSION: 2.1.24
-    - KUBE_VERSION: 1.20.0
+    - TF_VERSION: 0.14.10
+    - AWS_CLI_VERSION: 1.19.49
+    #TODO: check if: docker desktop local will soon upgrade kubernetes from 1.19.7 to 1.2X.X+? If so, we upgrade this line.
+    # but we might be able to just upgrade this, as it should be backwards compatible k8s tooling/libs anyway (double check and then upgrade this next line) .. 
+    - KUBE_VERSION: 1.19.7
     - KUBESEC_VERSION: 0.9.2
 
   tasks:
