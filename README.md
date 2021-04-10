@@ -135,11 +135,11 @@ Because DevOps loves super hard working Developers and genius Data Scientists (s
 
 Calibration of this tool: If a developer on day 1 can do all of these things without DevOps support, then we have suceeded:
 
-1) run the entire infrastructure on workstation matching exactly how it's ran in production
+1) run the entire infrastructure on workstation matching exactly how it's ran in production with 1 command
 
-2) make a 1 line change to a service, test it and deploy it
+2) make a 1 line change to a service by starting debug a full debug ide with 1 command, test it with 1 command, unit test it with 1 command and then deploy it by changing 1 environment file (THIS FEATURE IS LIVE!!)
 
-3) docs being self-sufficient with no manual intervention (fix all edge cases)
+3) docs being self-sufficient with no manual intervention (fix all edge cases), make it just perfect (this is why contributions to this very repo is SUPER important)
 
 
 
