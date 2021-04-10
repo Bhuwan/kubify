@@ -231,7 +231,8 @@ Let's build DevOps 4.0 together!!!
 
 Version 1 of Kubify is live in and in master branch. 
 
-Let me know if it works nicely on your Apple and Linux CICD things.
+Let me know if it works nicely on your Apple and Linux things.
+I will fix WSL2 support drift for Windows sooooon.
 
 
 

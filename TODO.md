@@ -1,6 +1,9 @@
 #feature #1: APM with ISTIO
 #feature #2: Auto-Configure IDE Debugger on "kubify debug"  
 #more features that come to mind:
+- fix WSL2 windows
+- make sure CICD linux is stable, add example entrypoint files for cicd systems to run the cicd scripts
+- add example 'hello kubify world' services in various languages
 - auto configure vscode eclipse and pycharm move versions to one file
 - ensure virtual env everywhere
 - brew to use virtualenv
