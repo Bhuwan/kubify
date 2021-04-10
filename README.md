@@ -11,6 +11,7 @@ This tool allows you to (with only 2 terminal commands: kubify up && kubify star
 Imagine this new world: A developer in the first few minutes (even on day 1) can easily ^^ (and then can focus on their actual code)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Run the exact environment you are running in the deployed k8s env locally (so you can be super super your commit won't break anything, rapid test and that it looks pretty)!!!!
 This is really important (so please contribute). DevOps needs to evolve into DevOps 4.0 and fast.. 
+
 ![FAST9000](./docs/img/README_md_imgs/fast.gif)
 
 # Setup
@@ -78,7 +79,9 @@ Calibration of this tool: If a developer on day 1 can do all of these things wit
 1) run the entire infrastructure on workstation matching exactly how it's ran in production
 2) make a 1 line change to a service, test it and deploy it
 3) docs being self-sufficient with no manual intervention (fix all edge cases)
+
 ![FAST9002](./docs/img/README_md_imgs/fast2.gif)
+
 I think we all know what kind of justice that would serve for our hard working devs..
 This way a developer on day 1 can be effective, up and running, as well as all devs can rapid test the entire infra locally and be super confident in the quality of their deployments (runs the same way locally as in the deployed env)
 
@@ -127,7 +130,9 @@ Version 1 of Kubify is live in and in master branch.
 Let me know if it works nicely on your Apple and Linux CICD things.
 
 This is what it feels like to run `kubify up`:
+
 ![LEVELOVER9000](./docs/img/README_md_imgs/bugs-fixed-v1-ready.gif)
+
 Want a rush? Run `kubify up`! Hey, that rhymes!
 
 So let's build awesome stuff together!!!
