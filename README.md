@@ -16,14 +16,20 @@ Kubify is a CLI tool to manage the development and deployment lifecycle of micro
 
 This tool allows you to (with only 2 terminal commands: kubify up && kubify start-all) have the ENTIRE infra running on your laptop (yes, the ENTIRE infra, amazing, revolutionary), then you simply cd into the microservice (cd into a backend/[] or frontend/[] folder) folder you want to work on (then run kubify start) to start rapid testing (listens for code changes, also runs your unit tests on each save and auto-configures vscode for breakpoint configuration)!!
 
-	NOTE: 2 future state mentions (so please contribute): "runs your unit tests on each save and auto-configures vscode for breakpoint configuration"..soooooon.....super soon........
+Imagine this new world: A developer in the first few minutes (even on day 1) can easily ^^ (and then can focus on their actual code)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	Imagine this new world: A developer in the first few minutes (even on day 1) can easily ^^ (and then can focus on their actual code)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Run the exact environment you are running in the deployed k8s env locally (so you can be super super your commit won't break anything, rapid test and that it looks pretty)!!!!
 
-	Run the exact environment you are running in the deployed k8s env locally (so you can be super super your commit won't break anything, rapid test and that it looks pretty)!!!!
+This is really important in the DevOps industry (so please contribute). Our devs should get a proper full turn key solution on day 1 that is battle tested. Think cloud, but open source. DevOps needs to evolve into DevOps 4.0 and fast.. 
 
-	This is really important (so please contribute). DevOps needs to evolve into DevOps 4.0 and fast.. 
 
+✅✅✅✅✅✅✅✅
+
+Mult-Cloud is important. Really important. Think site/api/microservice/mlops multi-cloud redundancy turn key!!
+
+Local testing (with the ENTIRE infra running locally perfectly) should be a click of a button (THIS FEATURE IS LIVE)!!
+
+✅✅✅✅✅✅✅✅
 
 
 ![FAST9000](./docs/img/README_md_imgs/fast.gif)
