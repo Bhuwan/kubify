@@ -172,10 +172,20 @@ https://news.ycombinator.com/item?id=26121877
 The "dev" environment is the same environment when running locally as the deployed environment (both local and the actual dev deployed k8s env use the "environments/dev.yaml" file, by careful design)
 
 
+# Key Concepts
 
-# Details
+1 yaml per service
+	yup, you heard that right, it's finally here, 1 yaml file total, with minimal syntax (but also allows for advanced usage patterns, still only 1 total devops file per service (that developers and devops can easily maintain, 10x easier)!!!!!!!!!!!!!!!!)
 
+1 yaml per environment
+	dev.yaml = "local" and actual deployed "dev" environment (they share a file, by design, yes, you heard me right, run all of dev on your laptop also and rapid test on it locally in 2 a total of 1 commands from scratch, even on day 1, 10x easier!!!!!)
 
+1 folder for backend services
+
+1 folder for frontend services
+	so you don't get those access patterns mixed up ever in a yaml
+
+Pure DevEx Developer love ..
 
 The point of this tool is to make Kubernetes easy for Developers. 
 
@@ -237,7 +247,6 @@ Version 1 of Kubify is live in and in master branch.
 
 Let me know if it works nicely on your Apple and Linux things.
 I will fix WSL2 support drift for Windows sooooon.
-
 
 
 This is what it feels like to run `kubify up`:
