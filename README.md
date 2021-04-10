@@ -16,7 +16,7 @@ This tool allows you to (with only 2 terminal commands: kubify up && kubify star
 
 Imagine this new world: A developer in the first few minutes (even on day 1) can easily ^^ (and then can focus on their actual code)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Run the exact environment you are running in the deployed k8s env locally (so you can be super super your commit won't break anything, rapid test and that it looks pretty)!!!!
+Run the exact environment you are running in the deployed k8s env locally (so you can be super sure about your commit won't break anything, rapid test and that it looks pretty)!!!!
 
 This is really important in the DevOps industry (so please contribute). Our devs should get a proper full turn key solution on day 1 that is battle tested. Think cloud, but open source. DevOps needs to evolve into DevOps 4.0 and fast.. 
 
