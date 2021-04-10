@@ -269,5 +269,7 @@ In the Kubernetes world, this is truly revolutionary, one of a kind (due to loca
 ![LEVELOVER9000](./docs/img/README_md_imgs/level-up.gif)
 
 
+This is the age of the "open source" auto-devops devex-first devsecops-first cloud!!
+
 
 💻💻💻💻💻💻💻💻💻💻
