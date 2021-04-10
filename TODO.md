@@ -30,4 +30,5 @@
     echo "DEBUG: RUNNING THIS CLI FUNCTION: "
   fi
 ```
+- Run multiple environments on your workstation (think async local cicd edge computing future we will live in)..
 - Add a super cool progress bar for "kubify up" (when running outside of debug mode): https://laptrinhx.com/use-images-as-progress-bars-in-the-terminal-86135668/

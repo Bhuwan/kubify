@@ -246,7 +246,7 @@ This is what it feels like to run `kubify up`:
 
 
 
-![LEVELOVER9000](./docs/img/README_md_imgs/bugs-fixed-v1-ready.gif)
+![FIXED9000](./docs/img/README_md_imgs/bugs-fixed-v1-ready.gif)
 
 
 
@@ -261,6 +261,8 @@ So let's build awesome stuff together!!!
 ![AUTOMATION9000](./docs/img/README_md_imgs/iron-person.gif)
 
 
+Special thank you to the fully automated open source interfaces (local and deployed indentical automation), such as KubeDB and KubeMQ!!!
+
 
 In the Kubernetes world, this is truly revolutionary, one of a kind (due to local testing automations matching deployed environment automations turn key and hybrid k8s portable interfaces) and was *super* fun to build!!!
 
@@ -269,7 +271,20 @@ In the Kubernetes world, this is truly revolutionary, one of a kind (due to loca
 ![LEVELOVER9000](./docs/img/README_md_imgs/level-up.gif)
 
 
-This is the age of the "open source" auto-devops devex-first devsecops-first cloud!!
+This is the age of the open source auto-devops devex-first devsecops-first fully automated portable cloud!!
+
+Alright, who is ready for the inevitable future of DevOps and Software Development??
+
+`print laymans terms`: This is Auto-Pilot for DevOps. Make your DevOps, DevEx, DevSecOps and especially your Developers Happy, by allowing them to be super productive, using turn kuy, fully automated solutions that allow them to test the software locally (on their very same workstation they currently use or on a side car workstation, if they for example need GPU workloads) the same exact way as they are ran in your deployed infra (cloud, on prem or a side car workstation tester nuc). Allow your developers to have a fully automated turn key DevOps solution, allowing your devops to focus on security, customers and especially to kubify. 
+
+Save huge on cloud costs. Run it all on your workstation. Run multiple environments on your workstation (think async local cicd edge computing future we will live in)..
+
+`print laymans terms | summary`: This makes your DevOps, Security Teams and especially your devs multiple times as happy.
+
+#FREESOFTWARE
+
+
+![FUTUREOFDEVOPS9000](./docs/img/README_md_imgs/the-future.gif)
 
 
 💻💻💻💻💻💻💻💻💻💻
