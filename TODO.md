@@ -2,6 +2,7 @@
 #feature #2: Auto-Configure IDE Debugger on "kubify debug"  
 #more features that come to mind:
 - fix WSL2 windows
+- add kubemq automation (backed by interface to sqs or kubemq container, based on deployed and local env automation)
 - add example 'hello kubify world' services in various languages
 - add istio apm (FREE APM!!!!) feature to example services
 - make sure CICD linux is stable, add example entrypoint files for cicd systems to run the cicd scripts
