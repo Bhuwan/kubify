@@ -35,21 +35,13 @@ This tool allows you to (with only 2 terminal commands: kubify up && kubify star
 ```
 
 # add kubify cli tool the path (so you can type kubify commands)
-
 # or add this to your ~/.profile
-
 # TODO: automate this with ansible auto add to path
-
 # TODO: or put in alias in root of repo and change all the references to relative paths
-
 export PATH=$PATH:$(pwd)/tools/kubify/cli 
 
-
-
 #install/configure/re-configure your local workstation with a proper cluster (including all pre-reqs automated)
-
 kubify up
-
 ```
 
 
@@ -59,23 +51,14 @@ kubify up
 
 
 ```
-
 #start all services locally (entire infra running locally)
-
 kubify start-all 
 
-
-
 #cd into a specific service
-
 cd fe-svc
 
-
-
 #listens for code changes, shows logs, runs unit tests (on each code save), opens and auto-configures IDE
-
 kubify start
-
 ```
 
 
@@ -109,25 +92,17 @@ Example: `KUBIFY_DEBUG=1 KUBIFY_CONTAINER_REGISTRY=ecr kubify up`
 To use default editor:
 
 ```
-
 cd backend/be-svc
-
 kubify secrets create dev
-
 ```
 
 To use alternative editor:
 
 ```
-
 brew install cask sublime-text
-
 export EDITOR="subl -w"
-
 cd backend/be-svc
-
 kubify secrets create dev
-
 ```
 
 # How to contribute to the OS repo
@@ -184,7 +159,7 @@ https://www.trendmicro.com/en_us/research/21/b/threat-actors-now-target-docker-v
 
 	https://news.ycombinator.com/item?id=26121877
 
-	
+
 
 # Important Notes
 
@@ -218,7 +193,7 @@ The Environments folder has 1 yaml file per environment. controlling what is dep
 
  A developer can control what version tag of the service, what secrets bundle git tag or commit sha to use and what config git tag or commit sha to use where. Rolling back secrets, service version and config version are as easy as a 3 line PR in GitHub.
 
- 
+
 
 Automatic tagging, artifact bundling, container building, deployments and release flows are in place using GitHub Actions CICD and are developed inside the same mono repo.
 
