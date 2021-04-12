@@ -291,6 +291,8 @@ Save huge on cloud costs. Run it all on your workstation. Run multiple environme
 
 `print laymans terms | summary`: This makes your DevOps, Security Teams and especially your devs multiple times as happy.
 
+Still need motivation?: The Lead Developer and Creator, Willy Guggenheim, works next to 9 calm tiny chihuahuas, loves AirPod Pros and Hip Hop.
+
 Still need motivation (THAT IS EASY TO FIX): https://www.youtube.com/watch?v=7m0n8h8b89M
 
 Kubify = The Open Source, Free, Portable, Fully Automated, Turn Key Head First Cloud !!

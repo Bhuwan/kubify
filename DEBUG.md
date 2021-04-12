@@ -19,6 +19,10 @@ Investigation:
 ![Reset Local K8s](./docs/img/DEBUG_md_imgs/000001/reset_docker_desktop_k8s_stack.png)
 
 
+# Issue 000002 (): If WSL2 Is Not Enabled (While Trying to Install Debian for Windows on Microsoft Store):
+If WSL2 (Windows Feature) is not enabled: Control Panel -> Programs -> Turn Windows Features on -> Checkmark "Linux Sub-System for Windows", Click Ok, Click Restart (when prompted) -> Open Microsoft Store (or manually/silently using https://docs.microsoft.com/en-us/windows/wsl/install-manual) again and try install of Debian For Windows again:
+![Install Missing WSL2](./docs/img/DEBUG_md_imgs/000002/wsl2_not_installed.png)
+
 #kubedb local reset
     docker docker settings -> resources -> make the disk size limit smaller -> apply (hard reset your k8s local stack for the win)
     and then reset helm
