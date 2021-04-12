@@ -404,29 +404,33 @@ EOF
 }
 
 function get_npm_secret_direct() {
-  if [ -z "${NPM_TOKEN}" ]; then
-    if test -f "$HOME/.npmrc"; then
-      IN=$(tail -1 $HOME/.npmrc | grep "^\/")
-      IFS='=' read -r -a ADDR <<< "$IN"
-      export NPM_TOKEN=${ADDR[1]}
-    else
-      echo "$HOME/.npmrc does not exist, please login to NPMJS, so that you can pull private packages.. Try using kubify up"
-      exit 1
+  if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
+    if [ -z "${NPM_TOKEN}" ]; then
+      if test -f "$HOME/.npmrc"; then
+        IN=$(tail -1 $HOME/.npmrc | grep "^\/")
+        IFS='=' read -r -a ADDR <<< "$IN"
+        export NPM_TOKEN=${ADDR[1]}
+      else
+        echo "$HOME/.npmrc does not exist, please login to NPMJS, so that you can pull private packages.. Try using kubify up"
+        exit 1
+      fi
     fi
-  fi
 
-  echo ${NPM_TOKEN}
+    echo ${NPM_TOKEN}
+  fi
 }
 
 function get_npm_secret() {
-  if [ -z "${NPM_TOKEN}" ]; then
-    K8_NPM_TOKEN=$(${KUBECTL_NS} get secrets --field-selector=metadata.name=npm-credentials -o json | jq -r .items[0].data.NPM_TOKEN | $BASE64_DECODE)
-    echo "${K8_NPM_TOKEN}" | grep -q '[0-9]'
-    if [ $? = 1 ]; then
-        echo "Problem accessing k8 npm secret. Try running 'kubify up', test the 'kubify update_npm_secret' and the 'kubify get_npm_secret' commands."
-        exit 1
-    else
-      echo ${K8_NPM_TOKEN}
+  if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
+    if [ -z "${NPM_TOKEN}" ]; then
+      K8_NPM_TOKEN=$(${KUBECTL_NS} get secrets --field-selector=metadata.name=npm-credentials -o json | jq -r .items[0].data.NPM_TOKEN | $BASE64_DECODE)
+      echo "${K8_NPM_TOKEN}" | grep -q '[0-9]'
+      if [ $? = 1 ]; then
+          echo "Problem accessing k8 npm secret. Try running 'kubify up', test the 'kubify update_npm_secret' and the 'kubify get_npm_secret' commands."
+          exit 1
+      else
+        echo ${K8_NPM_TOKEN}
+      fi
     fi
   fi
 }
