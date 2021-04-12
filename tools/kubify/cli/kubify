@@ -1,5 +1,8 @@
 #!/bin/bash
 
+UNIQUE_COMPANY_ACRONYM=${UNIQUE_COMPANY_ACRONYM:-os}
+export NAMING_PREFIX=$UNIQUE_COMPANY_ACRONYM-$ENV-kubify
+
 export AWS_REGION=${KUBIFY_AWS_REGION:-us-east-1}
 export AWS_PROFILE=${KUBIFY_AWS_PROFILE:-default}
 
@@ -34,8 +37,25 @@ AWS_ACCOUNT_ID=`aws sts get-caller-identity --query Account --output text`
 AWS_ACCESS_KEY_ID=`aws configure get default.aws_access_key_id`
 AWS_SECRET_ACCESS_KEY=`aws configure get default.aws_secret_access_key`
 
+# we don't want the S3 artifacts bucket to exist in us-east-1 (due to a known bug in pom.xml and similar files in using us-east-1 for artifacts, as well as for regional code backup automation redundancy reasons)
+if [[ "$AWS_REGION" == *"us-east-1"* ]]; then
+  ARTIFACTS_S3_BUCKET_AWS_REGION="us-east-2";
+elif [[ "$AWS_REGION" == *"us-west-2"* ]]; then
+  ARTIFACTS_S3_BUCKET_AWS_REGION="us-east-2";
+else
+  ARTIFACTS_S3_BUCKET_AWS_REGION="us-west-2";
+fi
+
+# in case the bucket is aleady created or if we created it in the infra folder using terraform (since that runs first)
+echo "checking access to artifacts s3 bucket to exist, creating it (with encryption at rest enabled) if it does not exist.."
+if aws s3 ls "s3://$NAMING_PREFIX" 2>&1 | grep -q 'NoSuchBucket'
+then
+  aws s3api create-bucket --bucket $NAMING_PREFIX --region $ARTIFACTS_S3_BUCKET_AWS_REGION
+  aws s3api put-bucket-encryption --bucket $NAMING_PREFIX --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
+fi
+
 # CI Parameters
-PUBLISH_IMAGE_REPO_PREFIX="kubifyinc"
+PUBLISH_IMAGE_REPO_PREFIX=$NAMING_PREFIX
 
 # GLOBAL OS OPTIONS
 if [[ "$OSTYPE" == *"darwin"* ]]; then
@@ -636,8 +656,11 @@ function configure {
 
   if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
     update_registry_secret
-  else
+  elif [[ "$KUBIFY_CONTAINER_REGISTRY" == "ecr" ]]; then
     install_aws_ecr_helper
+  else
+    echo "Unsupported KUBIFY_CONTAINER_REGISTRY $KUBIFY_CONTAINER_REGISTRY, currently supported values are dockerhub, ecr. To add an additional KUBIFY_CONTAINER_REGISTRY open an Issue or PR here: https://github.com/willyguggenheim/kubify"
+    exit 1
   fi
 
   # Set DNS
@@ -655,7 +678,15 @@ function configure {
       --tags="dnsmasq,trust_ca_cert"
   } &> $KUBIFY_OUT
 
-  update_npm_secret
+  if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
+      update_npm_secret
+  elif [[ "$KUBIFY_CONTAINER_REGISTRY" == "ecr" ]]; then
+    echo "Using S3 as artifact store"
+  else
+    echo "Unsupported KUBIFY_CONTAINER_REGISTRY $KUBIFY_CONTAINER_REGISTRY, currently supported values are dockerhub, ecr. To add an additional KUBIFY_CONTAINER_REGISTRY open an Issue or PR here: https://github.com/willyguggenheim/kubify"
+    exit 1
+  fi
+  # update_npm_secret
 
   # if [[ "$KUBIFY_ENGINE" == "minikube" ]]; then
   #   echo "Mounting user files"
@@ -679,7 +710,14 @@ function configure {
   {
     SRC_MOUNT_PATTERN=`echo "$SRC_MOUNT" | sed 's/\\//\\\\\//g'`
     HOME_MOUNT_PATTERN=`echo "$HOME_MOUNT" | sed 's/\\//\\\\\//g'`
-    ENTRYPOINT_TEMPLATE=`cat "$MANIFESTS/entrypoint.yaml" | sed "s/{{SRC_MOUNT}}/$SRC_MOUNT_PATTERN/g" | sed "s/{{HOME_MOUNT}}/$HOME_MOUNT_PATTERN/g"`
+        if [[ "$KUBIFY_CONTAINER_REGISTRY" == "dockerhub" ]]; then
+        ENTRYPOINT_TEMPLATE=`cat "$MANIFESTS/entrypoint.yaml" | sed "s/{{SRC_MOUNT}}/$SRC_MOUNT_PATTERN/g" | sed "s/{{HOME_MOUNT}}/$HOME_MOUNT_PATTERN/g"`
+    elif [[ "$KUBIFY_CONTAINER_REGISTRY" == "ecr" ]]; then
+        ENTRYPOINT_TEMPLATE=`cat "$MANIFESTS/entrypoint_s3.yaml" | sed "s/{{SRC_MOUNT}}/$SRC_MOUNT_PATTERN/g" | sed "s/{{HOME_MOUNT}}/$HOME_MOUNT_PATTERN/g"`
+    else
+      echo "please set env KUBIFY_CONTAINER_REGISTRY"
+      exit 1
+    fi
     echo "$ENTRYPOINT_TEMPLATE"
     echo "$ENTRYPOINT_TEMPLATE" | $KUBECTL_NS apply -f -
     if [[ "$OSTYPE" == *"darwin"* ]]; then

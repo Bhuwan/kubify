@@ -10,7 +10,7 @@ RUN apk add --update findutils
 RUN {{ install_script.split('\n') | join(';') }}
 ARG NPM_TOKEN
 WORKDIR /app
-RUN echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > /app/.npmrc
+RUN if [ ! -z "${NPM_TOKEN}" ]; then; echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > /app/.npmrc; fi
 COPY . .
 {% set build_script = kubify_config | json_query('dev.scripts.build') | default(none, true) %}
 {% if build_script is not none %}
