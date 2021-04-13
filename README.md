@@ -297,9 +297,9 @@ The feeling your devs and devops get when the entire infra is portable and runni
 
 ![SERIOUSLYDEEPLYOVER9000](./docs/img/README_md_imgs/the-feels.gif)
 
-Still need motivation?: The Lead Developer and Creator, Willy Guggenheim, works next to 9 calm tiny chihuahuas, loves AirPod Pros, Latino Pop, Ambient Music, Hard EDM & especially Hip Hop !!
+Still need motivation?: The Lead Developer and Creator, Willy Guggenheim, works next to 9 calm tiny chihuahuas, loves MetalCore, Latino Pop, Ambient, Classical, EDM & especially Hip Hop !!
 
-Still need motivation (THAT IS EASY TO FIX): https://www.youtube.com/watch?v=7m0n8h8b89M
+Still need motivation (THAT IS EASY TO FIX): https://www.youtube.com/watch?v=7m0n8h8b89M !!
 
 Kubify = The Open Source, Free, Portable, Fully Automated, DR-Enabled, Turn Key Head First Clou that let's you run your entire infra locally the same way as it deploys in the cloud !!
 
